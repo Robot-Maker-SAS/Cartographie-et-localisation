@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cartographie & Lidar – Lab (fix supercover + fond blanc)</title>
+<style>
+  :root{
+    --bg:#0f172a;--panel:#111827;--ink:#e5e7eb;--muted:#94a3b8;--accent:#38bdf8;
+    --ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--grid:#e5e7eb;--gridline:#d1d5db;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,Segoe UI,Roboto,Arial}
+  .app{display:grid;grid-template-columns: 360px 1fr;gap:16px;padding:16px;box-sizing:border-box;height:100%;position:relative}
+  .panel{background:var(--panel);border-radius:12px;padding:14px;box-shadow:0 0 0 1px #1f2937 inset;overflow:auto}
+  .panel h2{margin:.2rem 0 .8rem;font-size:16px;color:#fff}
+  .row{display:grid;grid-template-columns: 1fr 1fr;gap:8px;margin-bottom:8px}
+  label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:12px}
+  input[type="number"],input[type="range"],select{
+    width:100%;padding:8px 10px;border-radius:8px;border:1px solid #374151;background:#0b1220;color:#e5e7eb
+  }
+  input[type="checkbox"]{transform:scale(1.1)}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  button{
+    background:#0b1220;border:1px solid #374151;color:#e5e7eb;border-radius:10px;padding:8px 10px;cursor:pointer
+  }
+  button.primary{border-color:var(--accent);color:#e0f2fe}
+  button.ok{border-color:var(--ok);color:#dcfce7}
+  button.warn{border-color:var(--warn);color:#fef9c3}
+  button.danger{border-color:var(--danger);color:#fee2e2}
+  button.active-delete{background:#7f1d1d;border-color:var(--danger);color:#fee2e2}
+  .canvas-wrap{background:#0b1220;border-radius:12px;display:grid;grid-template-rows:auto 1fr;min-height:0}
+  .toolbar{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #1f2937}
+  .legend{margin-left:auto;color:var(--muted);font-size:12px}
+  canvas{display:block;width:100%;height:100%;background:white;}
+  .hint{color:var(--muted);font-size:12px;margin-top:6px}
+  .copyright{position:absolute;bottom:20px;right:20px;color:var(--muted);font-size:11px;opacity:0.7}
+  .mode-indicator{padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-left:12px}
+  .mode-indicator.add{background:#166534;color:#dcfce7;border:1px solid var(--ok)}
+  .mode-indicator.delete{background:#7f1d1d;color:#fee2e2;border:1px solid var(--danger)}
+  /* NOUVEAU : Style pour input file caché */
+  .file-input-wrapper{position:relative;overflow:hidden;display:inline-block}
+  .file-input-wrapper input[type=file]{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h2>Paramètres de la scène</h2>
+    <div class="row">
+      <label>Largeur (m)
+        <input id="inW" type="number" step="0.1" min="0.5" value="2.0">
+      </label>
+      <label>Hauteur (m)
+        <input id="inH" type="number" step="0.1" min="0.5" value="3.0">
+      </label>
+    </div>
+	<div class="row">
+      <label>Pas de grille (m)
+        <input id="inCell" type="number" step="0.01" min="0.02" value="0.10">
+      </label>
+      <label>Points Lidar (nb)
+        <input id="inRays" type="number" step="1" min="16" value="100">
+      </label>
+    </div>
+	<div class="row" style="grid-template-columns: 1fr 1fr;">
+	  <label style="display:flex;align-items:center;gap:8px">
+	    <input id="cbBorders" type="checkbox" checked>
+		Ajouter murs aux bords
+	  </label>
+      <label style="display:flex;align-items:center;gap:8px">
+		<input id="cbShowScan" type="checkbox" checked>
+		Afficher scan Lidar
+	  </label>
+	</div>
+    <h2>Robot</h2>
+	<div class="row" style="grid-template-columns: 1fr 1fr 1fr;">
+	  <label>Position X (m)
+		<input id="inRX" type="number" step="0.01" min="0" value="0.5">
+	  </label>
+
+	  <label>Position Y (m)
+		<input id="inRY" type="number" step="0.01" min="0" value="0.5">
+	  </label>
+
+	  <label>Orientation θ (°)
+		<input id="inRTh" type="number" step="1" min="-180" max="180" value="0">
+	  </label>
+	</div>
+
+    <!-- NOUVEAU : Paramètres de bruit Lidar -->
+    <h2>Bruit Lidar</h2>
+    <div class="row">
+      <label>Bruit angle (±°)
+        <input id="inNoiseAngle" type="number" step="0.1" min="0" max="10" value="0">
+      </label>
+      <label>Bruit distance (±m)
+        <input id="inNoiseDist" type="number" step="0.01" min="0" max="1" value="0">
+      </label>
+    </div>
+
+    <h2>Actions</h2>
+    <div class="btns">
+      <button id="btnApply" class="primary">Appliquer dimensions</button>
+      <button id="btnClear" class="danger">Effacer lignes</button>
+      <button id="btnToggleDelete" class="warn">🗑️ Mode suppression</button>
+      <!-- NOUVEAU : Import de carte vectorielle -->
+      <div class="file-input-wrapper">
+        <button class="primary">📂 Importer carte vectorielle</button>
+        <input type="file" id="fileImport" accept=".txt">
+      </div>
+      <button id="btnGrid" class="ok">Exporter Grid Map (CSV)</button>
+      <button id="btnVector" class="ok">Exporter Carte Vectorielle (TXT)</button>
+      <button id="btnScan" class="ok">Exporter Scan Lidar (CSV)</button>
+    </div>
+
+    <div class="hint">
+      • <b>Tracer une ligne</b> : cliquer-glisser-relâcher sur zone vide.<br>
+      • <b>Supprimer une ligne</b> : activer le mode suppression puis cliquer sur une ligne.<br>
+      • <b>Déplacer le robot</b> : cliquer-glisser sur le robot / molette ou Flèches du clavier + PageUp/PageDown<br>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <div class="toolbar">
+      <div>Zone de dessin</div>
+      <div id="modeIndicator" class="mode-indicator add">Mode ajout de ligne</div>
+      <div class="legend">Blanc = libre | Noir = occupé | Rouge = segments | Triangle = robot | Cyan = scan</div>
+    </div>
+    <canvas id="cv"></canvas>
+  </div>
+  
+  <div class="copyright">© QUILLES Jonathan (2025)</div>
+</div>
+
+<script>
+/* ---------- État global ---------- */
+const state = {
+  W: 2.0, H: 3.0, cell: 0.10, rays: 100,
+  addBorders: true,
+  segments: [],
+  gridOcc: [],
+  robot: {x:0.5, y:0.5, thDeg:0},
+  view: {scale: 220, ox: 30, oy: 30},
+  dragging:false, dragFrom:null, draggingRobot:false,
+  deleteMode: false,
+  showScan: true, // NOUVEAU
+  noiseAngle: 0,  // NOUVEAU : bruit en degrés
+  noiseDist: 0    // NOUVEAU : bruit en mètres
+};
+
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d', {alpha:false});
+
+/* ---------- Helpers ---------- */
+function clamp(v,a,b){return Math.max(a, Math.min(b, v));}
+
+/* NOUVEAU : Générateur de bruit aléatoire dans une plage [-range, +range] */
+function randomNoise(range){
+  return (Math.random() - 0.5) * 2 * range;
+}
+
+/* Coordonnées monde -> écran (origine en bas-gauche, Y vers le haut en monde) */
+function worldToScreen(x,y){
+  const {scale,ox,oy} = state.view;
+  const sx = ox + x*scale;
+  const sy = cv.height/ (window.devicePixelRatio||1) - (oy + y*scale);
+  return [sx, sy];
+}
+function screenToWorld(sx,sy){
+  const {scale,ox,oy} = state.view;
+  const x = (sx - ox)/scale;
+  const y = (cv.height/ (window.devicePixelRatio||1) - sy - oy)/scale;
+  return [x,y];
+}
+
+/* ---------- Canvas sizing ---------- */
+function fitCanvas(){
+  const wrap = cv.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.max(600, rect.width)*dpr;
+  cv.height = Math.max(400, rect.height - 40)*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  autoFitView();
+}
+
+function autoFitView(){
+  const canvasW = cv.width / (window.devicePixelRatio || 1);
+  const canvasH = cv.height / (window.devicePixelRatio || 1);
+  const margin = 20;
+  const availW = canvasW - 2*margin;
+  const availH = canvasH - 2*margin;
+  const scaleW = availW / state.W;
+  const scaleH = availH / state.H;
+  state.view.scale = Math.min(scaleW, scaleH);
+  const gridPixW = state.W * state.view.scale;
+  const gridPixH = state.H * state.view.scale;
+  state.view.ox = (canvasW - gridPixW) / 2;
+  state.view.oy = (canvasH - gridPixH) / 2;
+}
+
+/* ---------- Grille ---------- */
+function allocGrid(){
+  // MODIFIÉ : Utiliser ceil pour toujours couvrir toute la scène
+  const nx = Math.max(1, Math.ceil(state.W/state.cell));
+  const ny = Math.max(1, Math.ceil(state.H/state.cell));
+  state.nx = nx; state.ny = ny;
+  state.gridOcc = Array.from({length:ny},()=>Array(nx).fill(0));
+}
+function clearGrid(){
+  for(let j=0;j<state.ny;j++) state.gridOcc[j].fill(0);
+}
+
+function cellAt(x,y){
+  const i = Math.floor(x/state.cell);
+  const j = Math.floor(y/state.cell);
+  return [i,j];
+}
+function markCell(i,j){
+  if(i == state.nx) 
+   i -= 1;
+  if(j == state.ny)
+   j -= 1;
+   
+  if(i>=0 && j>=0 && i<state.nx && j<state.ny){
+    state.gridOcc[j][i] = 1;
+  }
+}
+
+/* ---------- Rasterisation supercover robuste ---------- */
+function rasterizeSegment(x0,y0,x1,y1){
+  x0 = clamp(x0,0,state.W); y0 = clamp(y0,0,state.H);
+  x1 = clamp(x1,0,state.W); y1 = clamp(y1,0,state.H);
+
+  const cell = state.cell;
+  const epsilon = 1e-9;
+  
+  let i = Math.floor(x0/cell);
+  let j = Math.floor(y0/cell);
+  const iEnd = Math.floor(x1/cell);
+  const jEnd = Math.floor(y1/cell);
+
+  markCell(i,j);
+
+  const dx = x1 - x0, dy = y1 - y0;
+  const stepI = (dx>0) ? 1 : (dx<0 ? -1 : 0);
+  const stepJ = (dy>0) ? 1 : (dy<0 ? -1 : 0);
+  const invDx = (dx!==0) ? 1/dx : 0;
+  const invDy = (dy!==0) ? 1/dy : 0;
+
+  function nextBoundaryCoordI(ii){ return (stepI>0) ? ( (ii+1)*cell ) : ( ii*cell ); }
+  function nextBoundaryCoordJ(jj){ return (stepJ>0) ? ( (jj+1)*cell ) : ( jj*cell ); }
+
+  let tMaxI, tMaxJ, tDeltaI, tDeltaJ;
+
+  if(stepI!==0){
+    const xb = nextBoundaryCoordI(i);
+    tMaxI = (xb - x0) * invDx;
+    tDeltaI = (cell * stepI) * invDx;
+  }else{
+    tMaxI = Infinity; tDeltaI = Infinity;
+  }
+
+  if(stepJ!==0){
+    const yb = nextBoundaryCoordJ(j);
+    tMaxJ = (yb - y0) * invDy;
+    tDeltaJ = (cell * stepJ) * invDy;
+  }else{
+    tMaxJ = Infinity; tDeltaJ = Infinity;
+  }
+
+  while(i !== iEnd || j !== jEnd){
+    if(tMaxI < tMaxJ - epsilon){
+      i += stepI;
+      markCell(i,j);
+      tMaxI += tDeltaI;
+    }else if(tMaxJ < tMaxI - epsilon){
+      j += stepJ;
+      markCell(i,j);
+      tMaxJ += tDeltaJ;
+    }else{
+      const iPrev = i;
+      const jPrev = j;
+      i += stepI;
+      j += stepJ;
+      markCell(i, j);
+      markCell(iPrev, j);
+      markCell(i, jPrev);
+      tMaxI += tDeltaI;
+      tMaxJ += tDeltaJ;
+    }
+  }
+}
+
+function rebuildGridFromSegments(){
+  clearGrid();
+  for(const s of state.segments){
+    rasterizeSegment(s.x1, s.y1, s.x2, s.y2);
+  }
+}
+
+/* ---------- Segments ---------- */
+function addSegment(x1,y1,x2,y2){
+  x1 = clamp(x1,0,state.W); y1 = clamp(y1,0,state.H);
+  x2 = clamp(x2,0,state.W); y2 = clamp(y2,0,state.H);
+  state.segments.push({x1,y1,x2,y2});
+  rasterizeSegment(x1,y1,x2,y2);
+}
+function resetSegments(){
+  state.segments = [];
+  clearGrid();
+  if(state.addBorders) addBorderWalls();
+}
+
+function findSegmentAtPoint(wx, wy, threshold = 0.05){
+  for(let i = 0; i < state.segments.length; i++){
+    const s = state.segments[i];
+    const dist = distancePointToSegment(wx, wy, s.x1, s.y1, s.x2, s.y2);
+    if(dist < threshold){
+      return i;
+    }
+  }
+  return -1;
+}
+
+function distancePointToSegment(px, py, x1, y1, x2, y2){
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx*dx + dy*dy;
+  if(lenSq === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  const projX = x1 + t * dx;
+  const projY = y1 + t * dy;
+  return Math.hypot(px - projX, py - projY);
+}
+
+function deleteSegment(index){
+  if(index >= 0 && index < state.segments.length){
+    state.segments.splice(index, 1);
+    rebuildGridFromSegments();
+  }
+}
+
+function addBorderWalls(){
+  // Mur du bas :
+  addSegment(0, 0, state.W, 0);
+  // Mur de droite :
+  addSegment(state.W, 0, state.W, state.H);
+  // Mur du haut :
+  addSegment(state.W, state.H, 0, state.H);
+  // Mur de gauche :
+  addSegment(0, state.H,0, 0);
+}
+
+/* ---------- Lidar ---------- */
+function raySegmentIntersection(px, py, rdx, rdy, x1, y1, x2, y2){
+  const sx = x2 - x1, sy = y2 - y1;
+  const denom = (rdx * sy - rdy * sx);
+  if (Math.abs(denom) < 1e-10) return null; // Rayon parallèle au segment
+  
+  const dx = x1 - px, dy = y1 - py;
+  const t = (dx * sy - dy * sx) / denom;
+  const u = (dx * rdy - dy * rdx) / denom;
+  
+  // t > 0 : intersection devant le robot
+  // 0 <= u <= 1 : intersection sur le segment
+  if (t > 1e-6 && u >= -1e-6 && u <= 1.0 + 1e-6) {
+    const ix = px + t * rdx;
+    const iy = py + t * rdy;
+    return {t, ix, iy};
+  }
+  return null;
+}
+
+/* MODIFIÉ : Calcul du scan corrigé avec bonne orientation */
+function computeScan(){
+  const N = Math.max(3, parseInt(document.getElementById('inRays').value||state.rays,10));
+  const out = [];
+  const {x:rx,y:ry, thDeg} = state.robot;
+  
+  // Angle du robot en radians (0° = droite, sens anti-horaire)
+  const th0 = thDeg * Math.PI / 180;
+
+  for(let k=0;k<N;k++){
+    // Angle local du rayon k (0 à 2π, réparti uniformément)
+    const aLocal = k * 2.0 * Math.PI / N;
+    
+    // Angle absolu du rayon dans le repère monde
+    const aGlobal = th0 + aLocal;
+    
+    // Direction du rayon
+    const rdx = Math.cos(aGlobal);
+    const rdy = Math.sin(aGlobal);
+    
+    let best = null;
+
+    // Chercher l'intersection la plus proche avec tous les segments
+    for(const s of state.segments){
+      const hit = raySegmentIntersection(rx, ry, rdx, rdy, s.x1, s.y1, s.x2, s.y2);
+      if(!hit) continue;
+      if(!best || hit.t < best.t) {
+        best = hit;
+      }
+    }
+
+    if(best){
+      // Distance réelle détectée
+      const r = best.t;
+      
+      // Ajout du bruit sur la distance et l'angle pour l'export
+      const rWithNoise = Math.max(0.001, r + randomNoise(state.noiseDist));
+      const aLocalWithNoise = aLocal + randomNoise(state.noiseAngle) * Math.PI / 180;
+      
+      out.push({
+        angle_deg: (aLocal * 180 / Math.PI),
+        r_m: rWithNoise,
+        x_rel: rWithNoise * Math.cos(aLocalWithNoise),
+        y_rel: rWithNoise * Math.sin(aLocalWithNoise),
+        // Pour le dessin : coordonnées exactes de l'intersection
+        x_abs: best.ix,
+        y_abs: best.iy,
+        hasHit: true
+      });
+    } else {
+      // Aucune détection - ne devrait jamais arriver dans une pièce fermée
+      console.warn(`Rayon ${k} (${(aLocal*180/Math.PI).toFixed(1)}°) n'a rien détecté !`);
+      out.push({
+        angle_deg: (aLocal * 180 / Math.PI), 
+        r_m: 0, 
+        x_rel: 0, 
+        y_rel: 0,
+        x_abs: rx,
+        y_abs: ry,
+        hasHit: false
+      });
+    }
+  }
+  
+  return out;
+}
+
+/* ---------- NOUVEAU : Import de carte vectorielle ---------- */
+function importVectorMap(text){
+  const lines = text.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+  state.segments = [];
+  for(const line of lines){
+    const parts = line.split(',').map(p => parseFloat(p.trim()));
+    if(parts.length === 4 && parts.every(n => !isNaN(n))){
+      state.segments.push({x1: parts[0], y1: parts[1], x2: parts[2], y2: parts[3]});
+    }
+  }
+  rebuildGridFromSegments();
+  draw();
+}
+
+/* ---------- Export ---------- */
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function exportGridCSV(){
+  let rows = [];
+  rows.push(`# Grid map ${state.nx}x${state.ny}, cell=${state.cell} m ; 1=occupied,0=free`);
+  for(let j=state.ny-1;j>=0;j--){
+    rows.push(state.gridOcc[j].join(','));
+  }
+  downloadText('grid_map.csv', rows.join('\n'));
+}
+function exportVectorTXT(){
+  let lines = [];
+  lines.push(`# Vector map segments: x1,y1,x2,y2 (meters)`);
+  for(const s of state.segments){
+    lines.push(`${s.x1.toFixed(4)},${s.y1.toFixed(4)},${s.x2.toFixed(4)},${s.y2.toFixed(4)}`);
+  }
+  downloadText('vector_map.txt', lines.join('\n'));
+}
+
+/* MODIFIÉ : Ajout de la position du robot en première ligne */
+function exportScanCSV(){
+  const scan = computeScan();
+  let lines = [];
+  // NOUVEAU : Première ligne avec position du robot
+  lines.push(`# Robot position: x=${state.robot.x.toFixed(4)}m, y=${state.robot.y.toFixed(4)}m, theta=${state.robot.thDeg.toFixed(2)}deg`);
+  lines.push('angle_deg,r_m,x_rel_m,y_rel_m');
+  for(const r of scan){
+    lines.push(`${(+r.angle_deg).toFixed(3)},${(+r.r_m).toFixed(4)},${(+r.x_rel).toFixed(4)},${(+r.y_rel).toFixed(4)}`);
+  }
+  downloadText('scan_lidar.csv', lines.join('\n'));
+}
+
+/* ---------- Dessin ---------- */
+function draw(){
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  
+  const [sceneX, sceneYBottom] = worldToScreen(0, 0);
+  const [sceneXEnd, sceneYTop] = worldToScreen(state.W, state.H);
+  const sceneWidth = sceneXEnd - sceneX;
+  const sceneHeight = sceneYBottom - sceneYTop;
+  ctx.fillStyle = 'white';
+  ctx.fillRect(sceneX, sceneYTop, sceneWidth, sceneHeight);
+
+  const nx = state.nx, ny=state.ny, cell=state.cell;
+  for(let i=0;i<=nx;i++){
+    const x=i*cell;
+    const [sx1,sy1]=worldToScreen(x,0);
+    const [sx2,sy2]=worldToScreen(x,state.H);
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+  }
+  for(let j=0;j<=ny;j++){
+    const y=j*cell;
+    const [sx1,sy1]=worldToScreen(0,y);
+    const [sx2,sy2]=worldToScreen(state.W,y);
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+  }
+
+  for(let j=0;j<ny;j++){
+    for(let i=0;i<nx;i++){
+      if(state.gridOcc[j][i]===1){
+        const x=i*cell, y=j*cell;
+        const [sx, syBottom] = worldToScreen(x, y);
+        const [sx2, syTop] = worldToScreen(x+cell, y+cell);
+        const w = sx2 - sx;
+        const h = syBottom - syTop;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(sx, syTop, w, h);
+      }
+    }
+  }
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#ef4444';
+  for(const s of state.segments){
+    const [sx1,sy1]=worldToScreen(s.x1,s.y1);
+    const [sx2,sy2]=worldToScreen(s.x2,s.y2);
+    ctx.beginPath();ctx.moveTo(sx1,sy1);ctx.lineTo(sx2,sy2);ctx.stroke();
+  }
+
+  // NOUVEAU : Affichage du scan Lidar en temps réel
+  if(state.showScan){
+    drawLidarScan();
+  }
+
+  drawRobot();
+}
+
+/* NOUVEAU : Fonction pour dessiner le scan Lidar */
+function drawLidarScan(){
+  const scan = computeScan();
+  const {x:rx, y:ry} = state.robot;
+  const [srx, sry] = worldToScreen(rx, ry);
+  
+  // Dessiner les rayons
+  ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)'; // cyan transparent
+  ctx.lineWidth = 1;
+  for(const pt of scan){
+    if(pt.hasHit){
+      const [sx, sy] = worldToScreen(pt.x_abs, pt.y_abs);
+      ctx.beginPath();
+      ctx.moveTo(srx, sry);
+      ctx.lineTo(sx, sy);
+      ctx.stroke();
+    }
+  }
+  
+  // Dessiner les points de détection
+  ctx.fillStyle = '#06b6d4'; // cyan
+  for(const pt of scan){
+    if(pt.hasHit){
+      const [sx, sy] = worldToScreen(pt.x_abs, pt.y_abs);
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawRobot(){
+  const r = state.robot;
+  const [sx,sy] = worldToScreen(r.x,r.y);
+  const size = 0.12 * state.view.scale;
+  ctx.save();
+  ctx.translate(sx,sy);
+  // MODIFIÉ : Rotation corrigée - le canvas a Y inversé, donc on garde le signe positif
+  ctx.rotate(-r.thDeg*Math.PI/180);
+  ctx.fillStyle = '#38bdf8';
+  ctx.strokeStyle = '#0ea5e9';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(size,0);
+  ctx.lineTo(-size*0.6, size*0.5);
+  ctx.lineTo(-size*0.6,-size*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ---------- Interaction ---------- */
+cv.addEventListener('mousedown', (e)=>{
+  const rect = cv.getBoundingClientRect();
+  const scaleX = cv.width / rect.width;
+  const scaleY = cv.height / rect.height;
+  const canvasX = (e.clientX - rect.left) * scaleX / (window.devicePixelRatio || 1);
+  const canvasY = (e.clientY - rect.top) * scaleY / (window.devicePixelRatio || 1);
+  const [wx,wy] = screenToWorld(canvasX, canvasY);
+  
+  const dx = wx - state.robot.x, dy = wy - state.robot.y;
+  if(Math.hypot(dx,dy) < 0.2){
+    state.draggingRobot = true;
+    return;
+  }
+  
+  if(state.deleteMode){
+    const segIndex = findSegmentAtPoint(wx, wy);
+    if(segIndex !== -1){
+      deleteSegment(segIndex);
+      draw();
+    }
+    return;
+  }
+  
+  state.dragging = true;
+  state.dragFrom = {x: clamp(wx,0,state.W), y: clamp(wy,0,state.H)};
+});
+
+cv.addEventListener('mousemove', (e)=>{
+  const rect = cv.getBoundingClientRect();
+  const scaleX = cv.width / rect.width;
+  const scaleY = cv.height / rect.height;
+  const canvasX = (e.clientX - rect.left) * scaleX / (window.devicePixelRatio || 1);
+  const canvasY = (e.clientY - rect.top) * scaleY / (window.devicePixelRatio || 1);
+  
+  if(state.draggingRobot){
+    const [wx,wy] = screenToWorld(canvasX,canvasY);
+    state.robot.x = clamp(wx,0,state.W);
+    state.robot.y = clamp(wy,0,state.H);
+    document.getElementById('inRX').value = state.robot.x.toFixed(2);
+    document.getElementById('inRY').value = state.robot.y.toFixed(2);
+    draw();
+    return;
+  }
+  
+  if(state.dragging){
+    draw();
+    const [wx,wy] = screenToWorld(canvasX,canvasY);
+    const [sx1,sy1]=worldToScreen(state.dragFrom.x,state.dragFrom.y);
+    const [sx2,sy2]=worldToScreen(clamp(wx,0,state.W),clamp(wy,0,state.H));
+    ctx.strokeStyle="#f59e0b";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(sx1,sy1);
+    ctx.lineTo(sx2,sy2);
+    ctx.stroke();
+  }
+});
+
+cv.addEventListener('mouseup', (e)=>{
+  if(state.dragging){
+    const rect = cv.getBoundingClientRect();
+    const scaleX = cv.width / rect.width;
+    const scaleY = cv.height / rect.height;
+    const canvasX = (e.clientX - rect.left) * scaleX / (window.devicePixelRatio || 1);
+    const canvasY = (e.clientY - rect.top) * scaleY / (window.devicePixelRatio || 1);
+    const [wx,wy] = screenToWorld(canvasX,canvasY);
+    addSegment(state.dragFrom.x, state.dragFrom.y, clamp(wx,0,state.W), clamp(wy,0,state.H));
+    state.dragging=false;
+    state.dragFrom=null;
+    draw();
+  }
+  state.draggingRobot=false;
+});
+
+cv.addEventListener('wheel', (e)=>{
+  const rect = cv.getBoundingClientRect();
+  const scaleX = cv.width / rect.width;
+  const scaleY = cv.height / rect.height;
+  const canvasX = (e.clientX - rect.left) * scaleX / (window.devicePixelRatio || 1);
+  const canvasY = (e.clientY - rect.top) * scaleY / (window.devicePixelRatio || 1);
+  const [wx,wy] = screenToWorld(canvasX, canvasY);
+  
+  const dx = wx - state.robot.x, dy = wy - state.robot.y;
+  if(Math.hypot(dx,dy) < 0.2){
+    state.robot.thDeg = clamp(state.robot.thDeg + (e.deltaY>0?-5:5), -180, 180);
+    document.getElementById('inRTh').value = state.robot.thDeg;
+    draw();
+  }
+}, {passive:false});
+
+/* ---------- UI ---------- */
+document.getElementById('btnApply').onclick = ()=>{
+  state.W = Math.max(0.5, +inW.value || 2.0);
+  state.H = Math.max(0.5, +inH.value || 3.0);
+  state.cell = Math.max(0.02, +inCell.value || 0.1);
+  state.rays = Math.max(16, +inRays.value || 100);
+  state.addBorders = cbBorders.checked;
+  allocGrid();
+  rebuildGridFromSegments();
+  autoFitView();
+  draw();
+};
+
+document.getElementById('btnClear').onclick = ()=>{ resetSegments(); draw(); };
+document.getElementById('btnGrid').onclick = exportGridCSV;
+document.getElementById('btnVector').onclick = exportVectorTXT;
+document.getElementById('btnScan').onclick = exportScanCSV;
+
+document.getElementById('btnToggleDelete').onclick = ()=>{
+  state.deleteMode = !state.deleteMode;
+  const btn = document.getElementById('btnToggleDelete');
+  const indicator = document.getElementById('modeIndicator');
+  
+  if(state.deleteMode){
+    btn.classList.add('active-delete');
+    btn.textContent = '✓ Mode suppression';
+    indicator.className = 'mode-indicator delete';
+    indicator.textContent = 'Mode suppression de ligne';
+  } else {
+    btn.classList.remove('active-delete');
+    btn.textContent = '🗑️ Mode suppression';
+    indicator.className = 'mode-indicator add';
+    indicator.textContent = 'Mode ajout de ligne';
+  }
+};
+
+// NOUVEAU : Import de fichier
+document.getElementById('fileImport').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    importVectorMap(evt.target.result);
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // Reset pour permettre de réimporter le même fichier
+});
+
+// NOUVEAU : Checkbox pour afficher/masquer le scan
+document.getElementById('cbShowScan').onchange = (e)=>{
+  state.showScan = e.target.checked;
+  draw();
+};
+
+// NOUVEAU : Paramètres de bruit
+document.getElementById('inNoiseAngle').oninput = (e)=>{
+  state.noiseAngle = Math.max(0, +e.target.value || 0);
+  draw();
+};
+document.getElementById('inNoiseDist').oninput = (e)=>{
+  state.noiseDist = Math.max(0, +e.target.value || 0);
+  draw();
+};
+
+document.getElementById('inRX').oninput = (e)=>{ state.robot.x = clamp(+e.target.value||0,0,state.W); draw(); };
+document.getElementById('inRY').oninput = (e)=>{ state.robot.y = clamp(+e.target.value||0,0,state.H); draw(); };
+document.getElementById('inRTh').oninput = (e)=>{ state.robot.thDeg = clamp(+e.target.value||0, -180, 180); draw(); };
+document.getElementById('cbBorders').onchange = (e)=>{ state.addBorders = e.target.checked; };
+
+window.addEventListener('resize', ()=>{ fitCanvas(); draw(); });
+
+/* ---- Déplacement clavier du robot ---- */
+window.addEventListener("keydown", (e) => {
+
+  const step = 0.05;   // déplacement linéaire en mètres
+  const rot = 5;       // rotation en degrés
+
+  let moved = false;
+
+  switch(e.key) {
+
+    /* === Déplacements latéraux dans la scène === */
+    case "ArrowRight":   // Aller vers +X global
+      state.robot.x += step;
+      moved = true;
+      break;
+
+    case "ArrowLeft":    // Aller vers -X global
+      state.robot.x -= step;
+      moved = true;
+      break;
+
+    /* === Avancer/reculer selon l'orientation du robot === */
+    case "ArrowUp":      // Avancer dans la direction du robot
+	  state.robot.y += step;
+      //state.robot.x += Math.cos(state.robot.thDeg * Math.PI/180) * step; // 2WD
+      //state.robot.y += Math.sin(state.robot.thDeg * Math.PI/180) * step;
+      moved = true;
+      break;
+
+    case "ArrowDown":    // Reculer dans la direction du robot
+	  state.robot.y -= step;
+      //state.robot.x -= Math.cos(state.robot.thDeg * Math.PI/180) * step; // 2WD
+      //state.robot.y -= Math.sin(state.robot.thDeg * Math.PI/180) * step;
+      moved = true;
+      break;
+
+    /* === Rotations === */
+    case "PageUp":       // Tourner à gauche
+      state.robot.thDeg = clamp(state.robot.thDeg + rot, -180, 180);
+      moved = true;
+      break;
+
+    case "PageDown":     // Tourner à droite
+      state.robot.thDeg = clamp(state.robot.thDeg - rot, -180, 180);
+      moved = true;
+      break;
+  }
+
+  if(moved){
+    // Garde le robot dans la scène
+    state.robot.x = clamp(state.robot.x, 0, state.W);
+    state.robot.y = clamp(state.robot.y, 0, state.H);
+
+    // Met à jour les champs de la UI
+    document.getElementById('inRX').value = state.robot.x.toFixed(2);
+    document.getElementById('inRY').value = state.robot.y.toFixed(2);
+    document.getElementById('inRTh').value = state.robot.thDeg.toFixed(0);
+
+    draw();
+  }
+});
+/* ---------- Init ---------- */
+function init(){
+  fitCanvas();
+  allocGrid();
+  if(state.addBorders) addBorderWalls();
+  draw();
+}
+init();
+</script>
+</body>
+</html>
