@@ -87,3 +87,7 @@ Documentation utile :
 ## 6. Conclusion
 
 Vous êtes maintenant prêt à programmer et expérimenter avec les cartes ESP32 dans l'IDE Arduino. Commencez par des projets simples, puis explorez les capacités avancées du module selon vos besoins.
+
+---
+
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

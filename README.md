@@ -6,6 +6,10 @@ L’objectif est de permettre aux étudiants de comprendre et de mettre en œuvr
 
 ---
 
+## Démarrage rapide
+
+Consultez le [guide de démarrage](RESSOURCES/Utiliser%20les%20outils%20du%20module.md) pour lancer les outils, installer les dépendances et comprendre les formats de données.
+
 ## 🎯Objectifs pédagogiques
 
 - Comprendre les principes fondamentaux de la **cartographie** et de la **localisation robotique**.
@@ -28,37 +32,50 @@ L’objectif est de permettre aux étudiants de comprendre et de mettre en œuvr
 
 L’ensemble des ressources du cours est organisé par thème :
 
-```
-Cartographie-et-localisation-2D/
-│
+```text
+Cartographie-et-localisation/
 ├── README.md
-│   → Présentation générale du module.
-│
 ├── DOCS/
-│   ├── Cartographie/
-│   ├── Localisation/
-│   ├── Présentation.pptx
+│   ├── Présentation du module.pptx
 │   ├── Glossaire.md
-│   → Documents de cours, explications, présentations et articles.
-│
+│   ├── Glossaire.xml
+│   ├── Cartographie/                  # Cours, présentation et construction des cartes
+│   └── Localisation/                  # Cours, présentation, pose et scan matching
+│       └── Papers/                    # Articles et présentations de référence
 ├── RESSOURCES/
-│   ├── LD06/
+│   ├── Utiliser les outils du module.md
+│   ├── Programmer un ESP32 avec l'IDE Arduino.md
+│   ├── LD06/                         # Guide d'acquisition et documentation du capteur
+│   │   ├── ESP32_LD06_Test/           # Exemple d'acquisition sur ESP32
+│   │   └── Librairie/                 # Bibliothèque LD06 en archive ZIP
 │   ├── MecanumCarV2/
-│   ├── Tools/
-│   └── Programmer un ESP32 avec l'IDE Arduino.md
-│   → Guides matériels, drivers, outils d’analyse et scripts d’aide.
-│
+│   │   ├── README.md                 # Matériel et câblage
+│   │   ├── ESP32MecanumCar/           # Exemple de pilotage des moteurs
+│   │   ├── CAD/                      # Support Lidar aux formats STL et STP
+│   │   ├── Libraries/                # Bibliothèques du kit en archives ZIP
+│   │   └── Examples.zip              # Exemples d'origine du kit
+│   └── Tools/
+│       ├── MapTool/
+│       │   ├── MapTool.html          # Simulateur dans le navigateur
+│       │   ├── maptoolPython/        # Version Python et requirements.txt
+│       │   └── maptoolProcessing/    # Version Processing
+│       └── RobotControl/
+│           ├── RobotControl.html     # Client de pilotage et d'acquisition Web
+│           ├── ESP32RobotControl/    # Programme ESP32 et serveur HTTP
+│           └── RobotControl/         # Client Processing et son README
 └── TP/
-    ├── Consignes.md
-    → C’est dans ce dossier que vous déposerez vos livrables.
-
-
+    └── Consignes.md                   # Exercices, livrables et critères de comparaison
 ```
 
 ---
 
 ## 🪪 Licence
 
+Ce module est proposé par **Robot Maker SAS**.
+
 Ce projet est diffusé sous licence **MIT**.  
-Vous êtes libres de l’utiliser et de le modifier à des fins pédagogiques, sous réserve de citer la source.  
-© 2025 – QUILLES Jonathan– Robot Maker SAS
+Vous êtes libres de l’utiliser et de le modifier à des fins pédagogiques, sous réserve de citer la source.
+
+---
+
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
