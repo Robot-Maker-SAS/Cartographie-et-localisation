@@ -58,8 +58,8 @@ Matériel nécessaire :
 
 | Signal     | Broche ESP32 | Description                                     |
 | ---------- | ------------ | ----------------------------------------------- |
-| TX (Lidar) | D35          | Transmission des données distance               |
-| PWM        | D34          | Signal de synchronisation / vitesse de rotation |
+| TX (Lidar) | GPIO33 | Réception des données sur RX de Serial2 |
+| PWM (Lidar) | GPIO32 | Sortie de commande, initialisée à HIGH par la bibliothèque |
 
 ---
 
@@ -78,4 +78,19 @@ Le Robot Mecanum Car V2 est équipé de
 
 ---
 
-© 2025 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
+
+### Connecteur Lidar et commande PWM
+
+Les deux exemples ESP32 utilisent TX du Lidar vers GPIO33 et l'entrée PWM du Lidar vers GPIO32. Les masses du Lidar et de l'ESP32 doivent être communes.
+
+Notes :
+
+a) La bibliothèque configure GPIO32 en sortie à l'état haut lors de `init()`. Cela ne génère pas un signal PWM périodique. Le réglage périodique de vitesse reste optionnel dans le bloc commenté de l'exemple LD06.
+
+b) Le TX de Serial2 n'est pas relié au Lidar ; `TX_LIDAR = -1` conserve l'affectation UART par défaut ou actuelle, il n'implique pas sa désactivation.
+
+c) Sur l'ESP32 classique, GPIO34 à GPIO39 sont des entrées uniquement : ne pas y connecter une sortie PWM logicielle. Voir la [documentation GPIO Espressif](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/gpio.html).
+
+---
+
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

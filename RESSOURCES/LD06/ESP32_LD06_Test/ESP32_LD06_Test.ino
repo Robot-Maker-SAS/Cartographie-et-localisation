@@ -14,9 +14,10 @@
 #include "ld06.h"
 
 // Example with hardware serial port (you can replace Serial1 by Serial on Arduino Uno)
-#define RX_LIDAR   35
-#define TX_LIDAR   -1
-#define LD06_PWM_PIN   34
+#define RX_LIDAR   33
+#define TX_LIDAR   -1 // Keep default/current UART TX assignment; leave it unconnected.
+// Lidar TX on GPIO33, Lidar PWM on GPIO32.
+#define LD06_PWM_PIN 32
 #define LIDAR_BAUD 230400
 LD06 ld06(Serial2, LD06_PWM_PIN);
 
@@ -29,7 +30,8 @@ void setup() {
   Serial2.setRxBufferSize(4096);
   Serial2.begin(LIDAR_BAUD, SERIAL_8N1, RX_LIDAR, TX_LIDAR);
   Serial2.setTimeout(10);
-  ld06.init();           // Initialize LiDAR serial (230400 bauds) and PWM if defined
+  ld06.init(); // Sets GPIO32 HIGH; periodic PWM remains optional below.
+
 
   // --------------------------------------------------------------------------
   // OPTIONAL CONFIGURATION ZONES

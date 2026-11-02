@@ -95,8 +95,8 @@ La structure d’une trame est fixe et normalisée :
 | Champ                          | Taille (octets) | Description                                                                                                                                                                                                 |
 | ------------------------------ | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Header**                     | 1               | Octet de synchronisation valant `0x54`. Il marque le début d’une nouvelle trame.                                                                                                                            |
-| **Version & Taille**           | 1               | Indique la version du protocole et la taille du paquet (souvent `0x2C` pour 47 octets de données). Ce champ peut légèrement varier selon le firmware.                                                       |
-| **Speed**                      | 2               | Vitesse de rotation du moteur du Lidar, en centièmes de degré par seconde. Permet d’estimer la fréquence de balayage.                                                                                       |
+| **Version & Taille**           | 1               | Vaut `0x2C` pour le format LD06 utilisé : version et nombre de mesures (12 points). La trame complète fait 47 octets.                                                       |
+| **Speed**                      | 2               | Vitesse de rotation du moteur du Lidar, en degrés par seconde. Permet d’estimer la fréquence de balayage.                                                                                       |
 | **Angle début**                | 2               | Angle du premier point du paquet, exprimé en centièmes de degré (0–35999 → 0–359,99°).                                                                                                                      |
 | **12 × (Distance, Intensité)** | 36              | Ensemble de 12 mesures successives :<br>• **Distance** (2 octets, uint16) : distance mesurée en millimètres (0 à 12 000).<br>• **Intensité** (1 octet, uint8) : niveau de réflexion du signal reçu (0–255). |
 | **Angle fin**                  | 2               | Angle du dernier point du paquet, exprimé en centièmes de degré. Sert à calculer le pas angulaire entre les points.                                                                                         |
@@ -107,7 +107,7 @@ La structure d’une trame est fixe et normalisée :
 
 ### Remarques importantes
 
-- **La trame contient 47 octets** au total (48 avec le byte de fin selon certains firmwares).
+- **La trame LD06 utilisée par la bibliothèque fournie contient exactement 47 octets**, CRC8 inclus, sans octet de fin supplémentaire.
 
 - Les **angles** sont exprimés en centièmes de degrés, ce qui permet une précision d’environ 0,01°.
 
@@ -115,7 +115,7 @@ La structure d’une trame est fixe et normalisée :
 
 - Le **checksum** suit un calcul de type **CRC8** avec la table de correspondance spécifique au LD06.
 
-- Le champ **Version & Taille** peut légèrement différer selon le fabricant (YDLIDAR, Waveshare, Benewake). Il faut donc le tolérer lors du décodage.
+- La bibliothèque fournie attend le couple `0x54 0x2C`. Un autre protocole nécessite un décodeur adapté ; ne pas accepter un format inconnu sans validation.
 
 ---
 
@@ -203,7 +203,7 @@ Ces points peuvent ensuite être :
 
 Le LD06 communique via un port **UART** à 230400 bauds.  
 Une simple liaison série (TX/RX) permet de récupérer les trames binaires sur un microcontrôleur, tel qu’un **ESP32**.
-Dans le cadre de notre projet le Lidar LD06 est relié à un esp32 Wrover module sur la broche RX2 35.
+Dans ce projet, le Lidar LD06 est relié à un ESP32-WROOM-32 configuré comme « ESP32 Dev Module » : TX du Lidar vers GPIO33 (RX de Serial2), entrée PWM du Lidar vers GPIO32 et masse commune.
 
 Le microcontrôleur peut :
 
@@ -223,4 +223,15 @@ Le code d'exemple envoie des données sur le moniteur série avec un baudrate de
 
 ---
 
-© 2025 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
+
+### Conventions et câblage de référence
+
+Le champ vitesse est en degrés par seconde : `0x0960 = 2400 °/s`, soit environ `6,67 tours/s`. Seuls les champs angles utilisent des centièmes de degré. Ces unités correspondent à `LD06/src/ld06.h` dans l'archive fournie.
+
+La formule d'interpolation ci-dessus décrit la convention de la bibliothèque fournie (pas divisé par 12 et décalage d'un demi-pas). Elle ne doit pas être confondue avec une interpolation passant exactement par les deux angles extrêmes. Pour comparer des décodeurs, conserver la même convention et vérifier sur un scan de référence.
+
+Les exemples configurent l'entrée PWM du Lidar sur GPIO32, initialisée à l'état haut par la bibliothèque ; la génération d'un PWM périodique reste optionnelle. GPIO34 est une entrée uniquement sur l'ESP32 classique. Voir le [guide matériel Mecanum](../MecanumCarV2/README.md) pour le connecteur TX/PWM sur GPIO33/GPIO32.
+
+---
+
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

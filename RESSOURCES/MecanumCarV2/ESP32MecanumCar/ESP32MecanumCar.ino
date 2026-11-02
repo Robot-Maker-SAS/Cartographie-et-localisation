@@ -8,13 +8,16 @@
 mecanumCar mecanumCar(19, 21);
 
 bool moving = false;
-uint32_t nextStop = 0;
+uint32_t moveStarted = 0;
+uint32_t moveDuration = 0;
 
 // Fonction générique pour lancer un mouvement pendant t millisecondes
 void doMove(void (*fn)(), int t) {
+  if (t <= 0) { mecanumCar.Stop(); moving = false; return; }
+  moveDuration = (uint32_t)constrain(t, 1, 2000);
+  moveStarted = millis();
   moving = true;
   fn();
-  nextStop = millis() + t;
 }
 
 // Fonctions de mouvement simplifiées
@@ -39,7 +42,7 @@ uint32_t nextAction = 0;
 void loop() {
 
   // Gestion de l'arrêt auto des moteurs
-  if (moving && millis() > nextStop) {
+  if (moving && (uint32_t)(millis() - moveStarted) >= moveDuration) {
     mecanumCar.Stop();
     moving = false;
     Serial.println("Moteurs arrêtés.");

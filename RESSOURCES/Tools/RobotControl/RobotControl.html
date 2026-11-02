@@ -220,7 +220,8 @@ button.danger{
 		</label>
 	</div>
 	<div class="file-input-wrapper">
-		<button class="primary" onclick="applyScene()">Appliquer</button>
+		<button onclick="cmd('stop')">ARRÊT IMMÉDIAT</button>
+<button class="primary" onclick="applyScene()">Appliquer</button>
 	</div>
 	
 
@@ -319,7 +320,7 @@ button.danger{
 	</div>
 
 
-    <div class="copyright">© QUILLES Jonathan (2025)</div>
+    <div class="copyright">© QUILLES Jonathan (2026)</div>
 </div>
 
 <script>
@@ -521,7 +522,7 @@ function sendPose(){
 // COMMANDES MOTEURS
 // ================================
 function cmd(action){
-    const time = document.getElementById("motorTime").value;
+    const time = Math.max(0, Math.min(2000, Number(document.getElementById("motorTime").value) || 0));
 
     fetch(`${ROBOT_IP}/${action}?time=${time}`)
         .then(r => {
@@ -534,14 +535,23 @@ function cmd(action){
 // ================================
 // LIDAR : SCAN / AUTO SCAN / DÉCODAGE
 // ================================
+let scanPending = false;
 async function manualScan(){
+    if (scanPending) return;
+    scanPending = true;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
     try{
-        const resp = await fetch(`${ROBOT_IP}/scan`);
+        const resp = await fetch(`${ROBOT_IP}/scan`, {signal: controller.signal});
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const buf = await resp.arrayBuffer();
         decodeScan(buf);
         log("Scan OK");
     }catch(err){
         log("Erreur scan : "+err);
+    }finally{
+        clearTimeout(timeout);
+        scanPending = false;
     }
 }
 
@@ -564,8 +574,12 @@ function updateScanStats(){
 }
 
 function decodeScan(buffer){
+    if (buffer.byteLength < 8) throw new Error("En-tête de scan incomplet");
+    const count = new DataView(buffer).getUint16(6, true);
+    if (count < 1 || count > 460 || buffer.byteLength !== 8 + 5 * count)
+        throw new Error("Taille de scan invalide");
     const now = performance.now();
-	if (now - lastScanTime < 200) return; // 12 Hz max
+	if (now - lastScanTime < 200) return; // 5 Hz max
     
 	const dt = (now - lastScanTime)/1000;
     lastScanTime = now;
