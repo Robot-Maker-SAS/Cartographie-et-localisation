@@ -1,6 +1,6 @@
 """
 Cartographie & Lidar - Python/Pygame
-© QUILLES Jonathan (2025)
+© QUILLES Jonathan (2026)
 
 Installation requise:
 pip install pygame
@@ -700,8 +700,9 @@ def main():
                                 elem.value = f"{state['robot']['y']:.2f}"
             
             elif event.type == pygame.MOUSEWHEEL:
-                if event.y != 0 and event.pos[0] > PANEL_WIDTH:
-                    canvas_mouse = get_canvas_mouse_pos(event.pos)
+                mouse_pos = pygame.mouse.get_pos()
+                if event.y != 0 and mouse_pos[0] > PANEL_WIDTH:
+                    canvas_mouse = get_canvas_mouse_pos(mouse_pos)
                     world_pos = screen_to_world(canvas_mouse[0], canvas_mouse[1])
                     wx, wy = world_pos
                     dx = wx - state['robot']['x']
@@ -805,7 +806,7 @@ def main():
         
         # Copyright
         copy_font = pygame.font.Font(None, 18)
-        copy_text = copy_font.render("© QUILLES Jonathan (2025)", True, (150, 150, 150))
+        copy_text = copy_font.render("© QUILLES Jonathan (2026)", True, (150, 150, 150))
         screen.blit(copy_text, (WINDOW_WIDTH - 180, WINDOW_HEIGHT - 20))
         
         pygame.display.flip()

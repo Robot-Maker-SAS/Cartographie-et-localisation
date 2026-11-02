@@ -1,5 +1,5 @@
 // Cartographie & Lidar - Processing
-// © QUILLES Jonathan (2025)
+// © QUILLES Jonathan (2026)
 import java.awt.event.KeyEvent;
 import controlP5.*;
 
@@ -325,7 +325,7 @@ void draw() {
   fill(150, 200);
   textAlign(RIGHT);
   textSize(10);
-  text("© QUILLES Jonathan (2025)", width - 10, height - 10);
+  text("© QUILLES Jonathan (2026)", width - 10, height - 10);
   textAlign(LEFT);
 }
 
