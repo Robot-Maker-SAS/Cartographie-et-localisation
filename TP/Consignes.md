@@ -1,6 +1,6 @@
 # Consignes de TP
 
-Maintenant à vous de jouer pour exploiter les données du lidar LD06 et vous lancer dans l'aventure de la cartographie et du mapping. Le travail à faire est individuel, mais vous pouvez discuter et échanger avec vos collègues.  
+Maintenant, à vous de jouer pour exploiter les données du lidar LD06 et vous lancer dans l’aventure de la cartographie et du mapping. Le travail à faire est individuel, mais vous pouvez discuter et échanger avec vos collègues.  
 Ce module a pour objectif de vous amener à **comprendre, traiter et exploiter les données issues du lidar LD06**, afin de développer progressivement des outils de **cartographie** et de **localisation** pour un robot mobile.
 
 Sur votre ordinateur, vous êtes libres de choisir votre environnement de développement :  
@@ -23,7 +23,9 @@ Dans les grandes lignes, vous devrez :
   
   - un scan de référence
 
-- Atteindre l'objectif final : **cartographier la salle de classe** et être capable de **localiser le robot** dans cette carte.
+- Atteindre l’objectif final : **cartographier la salle de classe** et être capable de **localiser le robot** dans cette carte.
+
+- Utilisez git pour le développement du projet.
 
 ---
 
@@ -43,23 +45,35 @@ Dans les grandes lignes, vous devrez :
 
 - Les différents scans doivent apparaître dans **des couleurs distinctes**.
 
-- Vous devez pouvoir **modifier la pose d’origine** de chaque scan indépendamment pour les déplacer manuellement sur la carte.
+- Vous devez pouvoir **modifier la pose d’origine** de chaque scan indépendamment, pour les déplacer manuellement sur la carte.
 
 ### 3. Construction d’une grid map 2D
 
-- Créez un outil qui transforme plusieurs *(scan + pose)* en **carte d’occupation**.
+- Lisez les étapes décrites dans le document *« Construction d’une grid map 2D à partir d’un scan lidar »*  pour comprendre comment construire une grid map à partir d'un scan et mettre à jour une grid map existante.
 
-- Suivez les étapes décrites dans le document *« Construction d’une grid map 2D à partir d’un scan lidar »* et expliquez clairement votre démarche (choix techniques, hypothèses, difficultés, limites) à chaque étape.
+- Créez un outil qui transforme un scan + pose en **carte d’occupation**.
 
-### 4. Extraction de segments
+- Créez un outil qui prend une carte d'occupation, un scan + pose et qui doit mettre à jour la carte d'occupation (cellules traversées + cellules d’impact).
 
-- Développez un outil ou des outils capables de transformer un nuage de points en **un ensemble de segments**.
+- Expliquez clairement votre démarche (choix techniques, hypothèses, difficultés, limites) à chaque étape.
+
+### 4. Extraction et manipulation de segments
+
+- Développez un outil capable de 
+  - Transformer un nuage de points en **un ensemble de segments**.
+  - Calculer l'angle entre deux segments
+  - Dire si deux segments sont " proches" aussi bien " angulairement" qu'en position
+  - Fusionner deux segments " proches"
+  - Calculer l'intersection de deux segments
+  - Découper un segment traversé par un autre segment en conservant le plus long côté.
+
+Pour ce découpage, exigez une intersection située sur les deux segments et strictement à l'intérieur du segment à couper. Une intersection à une extrémité ne change rien. Les segments colinéaires ne sont pas découpés par cette opération. En cas de longueurs égales à la tolérance près, conservez le côté contenant le premier point du segment. Définissez une tolérance numérique et testez ces cas limites.
 
 ### 5. Construction d’une carte vectorielle
 
-- Utilisez (ou intégrez) l’outil de segmentation pour construire une **carte vectorielle**.
+- Utilisez les fonctions développées précédemment pour construire une **carte vectorielle**.
 
-- Expliquez, comme pour la grid map, les étapes suivies d’après le document *« Construction d’une carte vectorielle 2D à partir d’un scan Lidar »*.
+- Expliquez, comme pour la grid map, les étapes suivies d’après le document *« Construction d’une carte vectorielle 2D à partir d’un scan lidar »*.
 
 - Vous êtes libres :
   
@@ -67,34 +81,64 @@ Dans les grandes lignes, vous devrez :
   
   - ou d’en créer un distinct.
 
-Vous êtes encouragés à ajouter des propriétés supplémentaires à vos cartes : durée de vie des cellules, filtrages, pondérations, etc.  
-**Commencez simple, complexifiez progressivement.**
+
+
+Que cela soit pour la cartographie en grid map ou en vectorielle, vous êtes encouragés à ajouter des propriétés supplémentaires à vos cartes : durée de vie des cellules, filtrages, pondérations, etc.  
+**Mais commencez simple puis complexifiez progressivement.**
 
 ---
 
 # TP – Jour 2 : Localisation (Scan Matching)
 
+Minimum attendu : une méthode fonctionnelle pour chacun des trois types de référence, avec une évaluation chiffrée. Les listes suivantes sont des pistes au choix, pas une obligation de tout implémenter. Les autres méthodes constituent des approfondissements facultatifs.
+
 ### 1. Localisation sur grid map
 
-Mettez en œuvre un ou plusieurs algorithmes de localisation fonctionnant sur une **carte d’occupation**.
+Mettez en œuvre un ou plusieurs algorithmes de localisation fonctionnant sur une **carte d’occupation**. Le scan à comparer doit représenter une zone couverte par la grid map.
+
+- Recherche exhaustive (brute force)
+
+- Descente de gradient
+
+- Multi-résolution
+
+- Probabiliste ...
 
 ### 2. Localisation sur carte vectorielle
 
-Mettez en œuvre un ou plusieurs algorithmes de localisation fonctionnant sur une **carte vectorielle**.
+Mettez en œuvre un ou plusieurs algorithmes de localisation fonctionnant sur une **carte vectorielle**. Le scan à comparer doit représenter une zone couverte par la carte vectorielle.
+
+- Recherche exhaustive (brute force)
+
+- Descente de gradient
+
+- Multi-résolution
+
+- Probabiliste 
+
+- Calcul direct ?
 
 ### 3. Localisation entre scans
 
-Implémentez un algorithme permettant de **localiser un scan par rapport à un scan de référence**.
+Mettez en œuvre un ou plusieurs algorithmes de localisation permettant de **localiser un scan par rapport à un scan de référence**. Dans ce cas le scan à comparer doit être pris près de la position où a été pris le scan de référence.
 
-Vous devrez ensuite comparer vos algorithmes selon :
 
-- rapidité
 
-- efficacité
 
-- précision
 
-Vous pouvez vous appuyer sur les articles scientifiques fournis dans le dossier *Papers*, et partager également vos autres sources.
+Quelques exemples d’algorithmes que vous pouvez utiliser :
+
+- Recherche exhaustive (brute force)
+
+- Descente de gradient
+
+- Multi-résolution
+
+- Probabiliste
+
+- Calcul direct ?
+
+Comparez les méthodes sur les mêmes scans et avec les mêmes poses initiales. Mesurez l'erreur de position (m), l'erreur angulaire (degrés), le temps de calcul et le taux de réussite selon des seuils que vous expliciterez. Faites varier la pose initiale pour mesurer la sensibilité à l'initialisation. Utilisez des poses connues en simulation et indiquez l'incertitude des références mesurées sur le robot.
 
 ---
 
@@ -112,7 +156,23 @@ Si vous réussissez, essayez de **déplacer le robot automatiquement** pour cons
 
 ---
 
-# Remarques complémentaires
+# **Livrable**
+
+Votre livrable final doit être un dossier **.zip** contenant :
+
+- **Un lien vers votre dépôt Git accessible à l’évaluateur, ou une copie du dépôt incluant son historique**, afin de vérifier les commits demandés.
+
+- **L’ensemble des outils que vous avez développés**, accompagnés si nécessaire des instructions permettant de les tester.
+
+- **Votre conclusion personnelle sur le module**, présentée sous forme de synthèse comprenant notamment :
+  
+  - pour chaque outil :  
+    les résultats visuels obtenus, les choix que vous avez effectués, les fonctionnalités que vous avez intégrées et les méthodes que vous avez implémentées.
+  
+  - un court récapitulatif de ce que vous retenez du module :  
+    ce que vous avez apprécié, ce que vous avez moins apprécié, et ce que vous amélioreriez si vous en aviez la possibilité.
+
+# **Remarques complémentaires**
 
 - Vous pourrez (et devrez) tester vos outils afin de vérifier vos résultats. Pour cela, vous pouvez utiliser :
   
@@ -120,38 +180,17 @@ Si vous réussissez, essayez de **déplacer le robot automatiquement** pour cons
   
   - des données artificielles générées avec **mapTool** (dans le dossier *Tools*).
 
-- De nombreuses ressources sont disponibles : documentation, exemples, bibliothèques, compléments de cours... N’hésitez pas à consulter les dossiers :
-  
-  - `/DOCS`
-  
-  - `/RESSOURCES`
+- De nombreuses ressources sont disponibles : documentation, exemples, bibliothèques, compléments de cours… N’hésitez pas à les consulter.
 
 - Le robot utilise un **ESP32**, un microcontrôleur doté du Wi-Fi.  
-  Vous pourrez donc transmettre les données **sans fil** vers votre ordinateur. L’outil *RobotControl* dans le dossier *Tools* peut vous aider à piloter le robot sans fil et à extraire les données du lidar en temps réel.
+  Vous pourrez donc transmettre les données **sans fil** vers votre ordinateur. L’outil *RobotControl*, dans le dossier *Tools*, peut vous aider à piloter le robot sans fil et à extraire les données du lidar en temps réel.
 
-- **⚠️ Commits réguliers exigés** :  
-  au moins **un commit toutes les 1h30** de TP, contenant par exemple :
-  
-  - ce qui a été réalisé
-  
-  - les choix effectués
-  
-  - les difficultés rencontrées
-  
-  - l’état d’avancement
-  
-  - ce qu’il reste à faire
+- L’usage de Git et GitHub est imposé. **N’hésitez pas à faire des commits réguliers**, au moins **un commit toutes les 1 h** de TP.
 
-- Votre **dernier commit** du projet devra contenir une conclusion personnelle :  
-  ce que vous avez appris, ce que vous avez apprécié ou non, et ce que vous amélioreriez si vous le pouviez.
+- Vous avez le droit d’échanger des idées avec vos collègues et de vous entraider, mais le travail reste individuel.
+
+- Une vidéo pour vous inspirer qui montre le résultat de la mise en oeuvre d'un slam  en carte vectorielle, sur un robot mecanum équipé d'un RPLidar A2 et d'un microcontrôleur PIC32 cadencé à 80Mhz: [Démonstration SLAM sur PIC 32](https://www.youtube.com/watch?v=Pq5y7eDiReU)
 
 ---
 
-# Vidéo d’inspiration
-
-[Vigirobotics SLAM Solution executed on a PIC 32 Bits Arduino-like MCU – YouTube](https://www.youtube.com/watch?v=Pq5y7eDiReU)
-
----
-
-© 2025 – Jonathan Quillès  
-**Module : Cartographie et Localisation appliquée à la robotique mobile**
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

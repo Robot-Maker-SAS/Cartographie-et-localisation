@@ -260,4 +260,11 @@ Il constitue une base de référence et peut être enrichi selon vos besoins.
 
 ---
 
-© 2025 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile Capteur
+
+## Version XML pour import
+
+[Glossaire.xml](Glossaire.xml) contient les mêmes 19 concepts sous une forme abrégée pour l'import dans un glossaire Moodle. Les définitions XML sont des synthèses : le présent document reste la référence détaillée. Lors d'une mise à jour, vérifier les deux versions. Le fichier est syntaxiquement valide ; tester l'import sur l'instance Moodle cible avant diffusion et vérifier les accents et le rendu HTML des définitions.
+
+---
+
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

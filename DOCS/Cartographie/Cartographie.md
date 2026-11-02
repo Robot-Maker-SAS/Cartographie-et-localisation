@@ -248,4 +248,4 @@ Cela conduit naturellement au problème suivant qui consiste à **localiser le r
 
 ---
 
-© 2025 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

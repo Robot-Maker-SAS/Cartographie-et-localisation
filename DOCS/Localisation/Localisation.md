@@ -792,7 +792,7 @@ Nous avons vu que :
 
 - Aucune méthode n’est parfaite : chaque capteur a ses **forces** et **limites** selon le contexte.
 
-- La **fusion de données** — via des filtres comme le **Kalman**, l’**EKF** ou le **filtre de particules** — permet d’obtenir une estimation **plus stable et fiable** dans le temps.
+- La **fusion de données** , via des filtres comme le **Kalman**, l’**EKF** ou le **filtre de particules** , permet d’obtenir une estimation **plus stable et fiable** dans le temps.
 
 - En pratique, tout système robuste s’appuie sur une **fusion multi-capteurs** (IMU, lidar, caméra, GPS, etc.).
 
@@ -805,4 +805,4 @@ Les approches modernes de **fusion multisensorielle** et de **SLAM** illustrent 
 
 ---
 
-© 2025 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

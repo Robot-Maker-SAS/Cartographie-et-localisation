@@ -30,7 +30,7 @@ où :
 
 - pi​ sont les points du scan ;
 
-- M est le Monde de référence (grid map, carte vectorielle ou nuage de point de référence)
+- M est la référence utilisée (grid map, carte vectorielle ou nuage de points de référence).
 
 - d désigne une mesure de distance (point-vers-carte, point-vers-point, etc.).
 
@@ -40,7 +40,7 @@ où :
 
 Quel que soit le type de carte, le scan matching suit généralement les étapes suivantes :
 
-###### 1. Transformation
+### 1. Transformation
 
 Appliquer la transformation candidate (x, y, θ) au scan courant afin d’exprimer l’ensemble des points dans le repère « monde ».
 
@@ -87,8 +87,6 @@ Selon la carte, son remplissage et sa résolution, le score peut être basé sur
 - la somme des probabilités d’occupation ;
 
 - la distance aux cellules occupées les plus proches.
-
-- 
 
 ### Avantages
 
@@ -415,4 +413,4 @@ Utiliser directement les **moments géométriques** des correspondances pour est
 
 ---
 
-© 2025 – Jonathan Quillès – Module *Cartographie et Localisation appliquée à la robotique mobile
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

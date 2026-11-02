@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GLOSSARY>
+  <INFO>
+    <NAME>Glossaire Cartographie et Localisation</NAME>
+    <INTRO></INTRO>
+    <INTROFORMAT>1</INTROFORMAT>
+    <ALLOWDUPLICATEDENTRIES>0</ALLOWDUPLICATEDENTRIES>
+    <DISPLAYFORMAT>dictionary</DISPLAYFORMAT>
+    <SHOWSPECIAL>1</SHOWSPECIAL>
+    <SHOWALPHABET>1</SHOWALPHABET>
+    <SHOWALL>1</SHOWALL>
+    <ALLOWCOMMENTS>0</ALLOWCOMMENTS>
+    <USEDYNALINK>1</USEDYNALINK>
+    <DEFAULTAPPROVAL>1</DEFAULTAPPROVAL>
+    <GLOBALGLOSSARY>0</GLOBALGLOSSARY>
+    <ENTBYPAGE>10</ENTBYPAGE>
+    <ENTRIES>
+
+      <!-- Capteur -->
+      <ENTRY>
+        <CONCEPT>Capteur</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Dispositif permettant de mesurer une grandeur physique et de la convertir en donnée numérique.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : En robotique mobile, un capteur fournit des informations sur l’environnement ou l’état du robot (Lidar, IMU, encodeurs, caméra). Les données capteurs sont fusionnées pour la cartographie et la localisation.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Carte d’occupation -->
+      <ENTRY>
+        <CONCEPT>Carte d’occupation / Grille d’occupation (Occupancy Grid)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Représentation de l’environnement sous forme de grille indiquant si chaque cellule est libre, occupée ou inconnue.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : L’espace est découpé en cellules dont chacune possède une probabilité d’occupation. Représentation très utilisée en SLAM 2D.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Carte sémantique -->
+      <ENTRY>
+        <CONCEPT>Carte sémantique (Semantic Map)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Carte contenant des informations sur la nature des objets (murs, portes, personnes…).&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Elle associe des étiquettes sémantiques aux zones observées. Utile pour les robots de service ou la navigation autonome.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Carte vectorielle -->
+      <ENTRY>
+        <CONCEPT>Carte vectorielle / Feature-based (Landmark Map)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Carte constituée d’éléments géométriques caractéristiques (landmarks).&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Stocke uniquement des points distinctifs (coins, murs, objets). Souvent utilisée dans EKF-SLAM ou Graph-SLAM.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Cartographie -->
+      <ENTRY>
+        <CONCEPT>Cartographie (Mapping)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Processus consistant à construire une représentation de l’environnement.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : La carte est créée à partir de mesures (Lidar, caméra…). Elle sert ensuite à la planification et à l’évitement d’obstacles.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Correction de boucle -->
+      <ENTRY>
+        <CONCEPT>Correction de boucle (Loop Solving)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Ajustement global d’une carte après détection d’une boucle.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Le système réoptimise la trajectoire complète pour réduire la dérive accumulée, souvent via Graph-SLAM.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Détection de boucle -->
+      <ENTRY>
+        <CONCEPT>Détection de boucle (Loop Closure Detection)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Reconnaissance d’un lieu déjà visité.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Permet d’identifier un environnement déjà cartographié, déclenchant la correction de boucle.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Erreur de dérive -->
+      <ENTRY>
+        <CONCEPT>Erreur de dérive (Drift Error)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Erreur accumulée dans la position du robot.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Causée par bruits, glissements et imprécisions. Compensée par la détection et la correction de boucle.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- ESP32 -->
+      <ENTRY>
+        <CONCEPT>ESP32</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Microcontrôleur Wi-Fi/Bluetooth pour communication et traitement embarqué.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Peut transmettre les données du Lidar LD06 vers un PC. Sert de passerelle entre robot et ordinateur.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- EKF -->
+      <ENTRY>
+        <CONCEPT>Filtre de Kalman étendu (EKF)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Méthode probabiliste d’estimation non linéaire.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Fusionne des mesures bruitées pour estimer l’état du robot. Utilisé dans les premiers SLAM.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Fusion de données -->
+      <ENTRY>
+        <CONCEPT>Fusion de données (Sensor Fusion)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Combinaison de mesures issues de capteurs différents.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Réduit l’incertitude et améliore la précision via filtres de Kalman, particules, méthodes bayésiennes.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Lidar -->
+      <ENTRY>
+        <CONCEPT>Lidar 360°</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Capteur laser mesurant des distances sur 360°. &lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Le LD06 fournit en continu des mesures angle/distance/intensité. Essentiel pour la localisation et la cartographie 2D.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Localisation -->
+      <ENTRY>
+        <CONCEPT>Localisation (Localization)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Estimation de la position et orientation du robot.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Compare les mesures du Lidar avec la carte existante. Indispensable en robotique autonome.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Point Cloud -->
+      <ENTRY>
+        <CONCEPT>Nuage de points (Point Cloud)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Ensemble de points représentant des surfaces.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Basé sur des mesures (x, y) ou (x, y, z). Sert de base à la cartographie et à l’extraction de caractéristiques.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Odométrie -->
+      <ENTRY>
+        <CONCEPT>Odométrie</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Estimation du déplacement à partir des capteurs du robot.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Basée sur encodeurs ou IMU, mais accumule des erreurs. Dans ce module, seule la localisation Lidar est utilisée.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Landmark -->
+      <ENTRY>
+        <CONCEPT>Repère / Landmark</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Point caractéristique utilisé comme référence.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Facilite la reconnaissance de lieux et stabilise la localisation. Utilisé dans le SLAM à features.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- SLAM -->
+      <ENTRY>
+        <CONCEPT>SLAM (Simultaneous Localization and Mapping)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Procédé permettant de se localiser tout en construisant une carte.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Combine simultanément la cartographie et la localisation du robot.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Système de coordonnées -->
+      <ENTRY>
+        <CONCEPT>Système de coordonnées</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Référence spatiale pour définir positions et orientations.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : Utilise le repère robot et le repère monde. Transformations par rotation/translation pour exprimer correctement les mesures.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+      <!-- Transmission WiFi -->
+      <ENTRY>
+        <CONCEPT>Transmission Wi-Fi (UDP / TCP)</CONCEPT>
+        <DEFINITION>&lt;p&gt;&lt;strong&gt;Définition courte&lt;/strong&gt; : Méthodes de communication réseau.&lt;br&gt;&lt;strong&gt;Explication&lt;/strong&gt; : UDP est rapide pour flux continus (Lidar), TCP est fiable pour commandes et échanges critiques.&lt;/p&gt;</DEFINITION>
+        <FORMAT>1</FORMAT><DEFINITIONTRUST>0</DEFINITIONTRUST><USEDYNALINK>0</USEDYNALINK><CASESENSITIVE>0</CASESENSITIVE><FULLMATCH>0</FULLMATCH><TEACHERENTRY>1</TEACHERENTRY>
+      </ENTRY>
+
+    </ENTRIES>
+  </INFO>
+</GLOSSARY>

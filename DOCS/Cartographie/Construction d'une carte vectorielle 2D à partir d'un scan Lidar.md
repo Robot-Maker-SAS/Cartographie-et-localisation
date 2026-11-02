@@ -196,4 +196,4 @@ Exemples de nettoyage :
 
 ---
 
-© 2025 – Jonathan Quillès – Module *Cartographie et Localisation appliquée à la robotique mobile*
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile

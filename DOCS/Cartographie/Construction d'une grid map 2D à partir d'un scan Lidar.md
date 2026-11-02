@@ -91,7 +91,7 @@
 
 - Pour chaque nouveau scan, le LIDAR est **aligné** avec la carte existante (scan matching), et on répète les étapes 2, 3 et 4 afin de mettre à jour la carte au fil du temps.
 
-- Des opérations d’identification de **cellules d’intérêt** (cellules isolées mais très probables, segments, coins — intersection de lignes) peuvent être réalisées afin :
+- Des opérations d’identification de **cellules d’intérêt** (cellules isolées mais très probables, segments, coins , intersection de lignes) peuvent être réalisées afin :
   
   - d’ajouter du sens à la carte,
   
@@ -126,8 +126,8 @@
 
 - Le choix de la résolution, du modèle de mise à jour et du filtrage dépend du **type de robot**, de la **vitesse de déplacement**, de la **qualité du LIDAR**, et de la **précision souhaitée**.
 
-- En pratique, les cartes sont souvent stockées sous forme de **matrices de `uint8_t`** pour représenter les probabilités sans consommer trop de mémoire — en particulier pour des intégrations sur microcontrôleurs.
+- En pratique, les cartes sont souvent stockées sous forme de **matrices de `uint8_t`** pour représenter les probabilités sans consommer trop de mémoire , en particulier pour des intégrations sur microcontrôleurs.
 
 ---
 
-© 2025 – Jonathan Quillès – Module *Cartographie et Localisation appliquée à la robotique mobile*
+© 2026 – Jonathan Quillès – Module Cartographie et Localisation appliquée à la robotique mobile
